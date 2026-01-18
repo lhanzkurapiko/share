@@ -1678,25 +1678,25 @@
 
                     <div class="guide-step">
                         <div class="guide-step-number">1</div>
-                        <h4>Get Facebook Cookies 🗂️🔑</h4>
+                        <h4>Get appstate</h4>
                         <p>You need to get your Facebook cookies to use this tool:</p>
                         <div class="code-block">
 1. I-download ang browser na ito: 
-   <a href="https://kiwi-browser.en.uptodown.com/android/download" target="_blank">kiwi browser</a>
+   <a href="https://kiwi-browser.en.uptodown.com/android/download" target="_blank">kiwi browser</a><br><br>
 
-2. Buksan ang browser pagkatapos ma-download.
+2. Buksan ang browser pagkatapos ma-download.<br><br>
 
-3. Pumunta sa Facebook gamit ang browser at mag-login sa account na gusto mong kunan ng appstate.
+3. Pumunta sa Facebook gamit ang browser at mag-login sa account na gusto mong kunan ng appstate.<br><br>
 
-4. Pindutin ang tatlong tuldok sa taas: ⋮
+4. Pindutin ang tatlong tuldok sa taas: ⋮<br><br>
 
-5. Hanapin ang Extensions at i-click ang +(from store). Sa search bar, i-type ang: c3c fbstate utility
+5. Hanapin ang Extensions at i-click ang +(from store). Sa search bar, i-type ang: c3c fbstate utility<br><br>
 
-6. Kapag lumabas, i-click ito. Sa kanan, pindutin ang Add to Chrome at maghintay hanggang ma-install.
+6. Kapag lumabas, i-click ito. Sa kanan, pindutin ang Add to Chrome at maghintay hanggang ma-install.<br><br>
 
-7. Pagkatapos ma-install, i-click muli ang tatlong tuldok ⋮, scroll pababa, at makikita mo ang C3C FBSTATE.
+7. Pagkatapos ma-install, i-click muli ang tatlong tuldok ⋮, scroll pababa, at makikita mo ang C3C FBSTATE.<br><br>
 
-8. I-click ito, pagkatapos Copy to Clipboard ang iyong appstate.
+8. I-click ito, pagkatapos Copy to Clipboard ang iyong appstate.<br><br>
 
 </div>
                     </div>
@@ -1927,7 +1927,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
         </main>
     </div>
 
-    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
@@ -1960,28 +1959,24 @@ https://m.facebook.com/story.php?story_fbid=123456789
 
         
         const elements = {
-            // Menu Elements
             menuBtn: document.getElementById('menuBtn'),
             closeSidebar: document.getElementById('closeSidebar'),
             sidebar: document.getElementById('sidebar'),
             sidebarOverlay: document.getElementById('sidebarOverlay'),
             menuItems: document.querySelectorAll('.menu-item'),
             
-            // Section Elements
             sections: {
                 dashboard: document.getElementById('dashboardSection'),
                 progress: document.getElementById('progressSection'),
                 history: document.getElementById('historySection'),
                 guide: document.getElementById('guideSection'),
                 users: document.getElementById('usersSection'),
-                userStats: document.getElementById('userStatsSection') // DAGDAG: New section
+                userStats: document.getElementById('userStatsSection') 
             },
             
-            // Form Elements
             shareForm: document.getElementById('shareForm'),
             submitBtn: document.getElementById('submitBtn'),
             
-            // Progress Elements
             currentShares: document.getElementById('currentShares'),
             targetShares: document.getElementById('targetShares'),
             progressPercent: document.getElementById('progressPercent'),
@@ -1994,19 +1989,16 @@ https://m.facebook.com/story.php?story_fbid=123456789
             monitorBtn: document.getElementById('monitorBtn'),
             stopBtn: document.getElementById('stopBtn'),
             
-            // History Elements
             historyList: document.getElementById('historyList'),
             refreshHistoryBtn: document.getElementById('refreshHistory'),
             clearHistoryBtn: document.getElementById('clearHistory'),
             
-            // User Elements
             userCountEl: document.getElementById('userCount'),
             activeUsersCount: document.getElementById('activeUsersCount'),
             totalSessionsCount: document.getElementById('totalSessionsCount'),
             activeSessionsCount: document.getElementById('activeSessionsCount'),
             completedSessionsCount: document.getElementById('completedSessionsCount'),
             
-            // DAGDAG: New User Stats Elements
             userActivityIndicator: document.getElementById('userActivityIndicator'),
             veryActiveCount: document.getElementById('veryActiveCount'),
             uniqueIPsCount: document.getElementById('uniqueIPsCount'),
@@ -2017,7 +2009,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
             detailedUserList: document.getElementById('detailedUserList'),
             viewDetailedBtn: document.getElementById('viewDetailedBtn'),
             
-            // DAGDAG: User Stats Section Elements
             statsActiveUsers: document.getElementById('statsActiveUsers'),
             statsVeryActive: document.getElementById('statsVeryActive'),
             statsUniqueIPs: document.getElementById('statsUniqueIPs'),
@@ -2026,26 +2017,20 @@ https://m.facebook.com/story.php?story_fbid=123456789
             startLiveStatsBtn: document.getElementById('startLiveStatsBtn'),
             stopLiveStatsBtn: document.getElementById('stopLiveStatsBtn'),
             
-            // Badges
             progressBadge: document.getElementById('progressBadge'),
             historyBadge: document.getElementById('historyBadge'),
             usersBadge: document.getElementById('usersBadge'),
-            
-            // Quick Actions
+           
             quickProgress: document.getElementById('quickProgress'),
             quickHistory: document.getElementById('quickHistory'),
             quickGuide: document.getElementById('quickGuide'),
             quickUsers: document.getElementById('quickUsers'),
-            quickUserStats: document.getElementById('quickUserStats'), // DAGDAG: New
-            quickRealTime: document.getElementById('quickRealTime'), // DAGDAG: New
-            
-            // Toast Container
+            quickUserStats: document.getElementById('quickUserStats'), 
+            quickRealTime: document.getElementById('quickRealTime'), 
+          
             toastContainer: document.getElementById('toastContainer')
         };
 
-        // ====================
-        // TOAST SYSTEM
-        // ====================
         class Toast {
             static show(title, message, type = 'info', duration = 5000) {
                 const toast = document.createElement('div');
@@ -2072,18 +2057,15 @@ https://m.facebook.com/story.php?story_fbid=123456789
                 `;
                 
                 elements.toastContainer.appendChild(toast);
-                
-                // Show animation
+                          
                 setTimeout(() => toast.classList.add('show'), 10);
                 
-                // Close button
                 const closeBtn = toast.querySelector('.toast-close');
                 closeBtn.addEventListener('click', () => {
                     toast.classList.remove('show');
                     setTimeout(() => toast.remove(), 300);
                 });
                 
-                // Auto remove
                 setTimeout(() => {
                     if (toast.parentNode) {
                         toast.classList.remove('show');
@@ -2111,9 +2093,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
             }
         }
 
-        // ====================
-        // API FUNCTIONS
-        // ====================
         const api = {
             async submitShare(data) {
                 try {
@@ -2202,7 +2181,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
                 }
             },
             
-            // ==================== DAGDAG: New API Functions ====================
             async sendActivity(userId) {
                 try {
                     const response = await fetch('/api/activity', {
@@ -2261,9 +2239,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
             }
         };
 
-        // ====================
-        // UTILITY FUNCTIONS
-        // ====================
         const utils = {
             formatTime(seconds) {
                 if (seconds < 60) {
@@ -2335,7 +2310,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
                 }
             },
             
-            // ==================== DAGDAG: Generate User ID ====================
             generateUserId() {
                 if (!state.userId) {
                     const timestamp = Date.now();
@@ -2346,21 +2320,16 @@ https://m.facebook.com/story.php?story_fbid=123456789
                 return state.userId;
             },
             
-            // ==================== DAGDAG: Get stored User ID ====================
             getStoredUserId() {
                 return localStorage.getItem('fbShareUserId');
             },
             
-            // ==================== DAGDAG: Shorten text ====================
             shortenText(text, maxLength = 30) {
                 if (text.length <= maxLength) return text;
                 return text.substring(0, maxLength) + '...';
             }
         };
 
-        // ====================
-        // UI FUNCTIONS
-        // ====================
         const ui = {
             showSection(sectionName) {
                 // Update menu items
@@ -2380,14 +2349,12 @@ https://m.facebook.com/story.php?story_fbid=123456789
                     elements.sections[sectionName].classList.add('active');
                 }
                 
-                // Close sidebar on mobile
                 if (window.innerWidth <= 768) {
                     elements.sidebar.classList.remove('active');
                     elements.sidebarOverlay.classList.remove('active');
                     elements.menuBtn.classList.remove('active');
                 }
                 
-                // Load data for section
                 switch(sectionName) {
                     case 'history':
                         ui.loadHistory();
@@ -2398,7 +2365,7 @@ https://m.facebook.com/story.php?story_fbid=123456789
                     case 'users':
                         ui.updateUserStats();
                         break;
-                    case 'userStats': // DAGDAG: New
+                    case 'userStats': 
                         ui.startUserStatsUpdates();
                         break;
                 }
@@ -2419,7 +2386,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
                 elements.statusDot.className = `status-dot ${p.status}`;
                 elements.statusText.textContent = utils.getStatusText(p.status);
                 
-                // Update badge
                 if (p.status === 'running') {
                     elements.progressBadge.textContent = 'Live';
                     elements.progressBadge.style.background = '#36a420';
@@ -2453,10 +2419,8 @@ https://m.facebook.com/story.php?story_fbid=123456789
                         return;
                     }
                     
-                    // Update badge
                     elements.historyBadge.textContent = history.length;
                     
-                    // Generate history items
                     elements.historyList.innerHTML = history.map((item, index) => {
                         const progress = Math.round((item.count / item.target) * 100);
                         const startTime = new Date(item.startTime).toLocaleTimeString([], { 
@@ -2506,13 +2470,12 @@ https://m.facebook.com/story.php?story_fbid=123456789
                     const result = await api.getUsers();
                     
                     if (result.success) {
-                        // Update main count
+                        
                         state.userCount = result.count;
                         elements.userCountEl.textContent = result.count;
                         elements.usersBadge.textContent = result.count;
                         elements.activeUsersCount.textContent = result.count;
                         
-                        // DAGDAG: Update stats if available
                         if (result.stats) {
                             state.userStats = {
                                 activeUsers: result.count,
@@ -2523,11 +2486,9 @@ https://m.facebook.com/story.php?story_fbid=123456789
                                 lastUpdated: Date.now()
                             };
                             
-                            // Update detailed stats
                             ui.updateDetailedUserStats();
                         }
                         
-                        // DAGDAG: Show/hide activity indicator
                         if (result.veryActiveUsers && result.veryActiveUsers > 0) {
                             elements.userActivityIndicator.style.display = 'flex';
                             elements.veryActiveCount.textContent = result.veryActiveUsers;
@@ -2555,7 +2516,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
                         elements.completedSessionsCount.textContent = completedSessions.length;
                         elements.activeUsersCount.textContent = usersResult.count;
                         
-                        // DAGDAG: Update detailed stats
                         if (usersResult.stats) {
                             state.userStats = {
                                 activeUsers: usersResult.count,
@@ -2574,20 +2534,17 @@ https://m.facebook.com/story.php?story_fbid=123456789
                 }
             },
             
-            // ==================== DAGDAG: New User Stats Functions ====================
             updateDetailedUserStats() {
                 elements.uniqueIPsCount.textContent = state.userStats.uniqueIPs;
                 elements.veryActiveUsersCount.textContent = state.userStats.veryActive;
                 elements.totalRequestsCount.textContent = state.userStats.totalRequests;
                 elements.totalTrackedCount.textContent = state.userStats.totalTracked;
                 
-                // Update user stats section
                 elements.statsActiveUsers.textContent = state.userStats.activeUsers;
                 elements.statsVeryActive.textContent = state.userStats.veryActive;
                 elements.statsUniqueIPs.textContent = state.userStats.uniqueIPs;
                 elements.statsTotalRequests.textContent = state.userStats.totalRequests;
                 
-                // Show stats grid if data exists
                 if (state.userStats.totalTracked > 0) {
                     elements.userStatsGrid.style.display = 'grid';
                 }
@@ -2678,7 +2635,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
                 state.activeSessionId = sessionId;
                 state.isSharing = true;
                 
-                // Start monitoring
                 state.sessionMonitorInterval = setInterval(async () => {
                     try {
                         const result = await api.getProgress(sessionId);
@@ -2694,12 +2650,10 @@ https://m.facebook.com/story.php?story_fbid=123456789
                             
                             ui.updateProgressDisplay();
                             
-                            // Update user count periodically
-                            if (Math.random() > 0.7) { // Random update
+                            if (Math.random() > 0.7) { 
                                 ui.updateUserCount();
                             }
                             
-                            // If completed or stopped, clear interval
                             if (result.status === 'completed' || result.status === 'stopped' || result.status === 'failed') {
                                 clearInterval(state.sessionMonitorInterval);
                                 state.sessionMonitorInterval = null;
@@ -2714,9 +2668,9 @@ https://m.facebook.com/story.php?story_fbid=123456789
                         }
                     } catch (error) {
                         console.error('Monitor Error:', error);
-                        // Don't stop monitoring on error
+                        
                     }
-                }, 1000); // Poll every 1 second
+                }, 1000); 
             },
             
             stopProgressMonitor() {
@@ -2728,19 +2682,15 @@ https://m.facebook.com/story.php?story_fbid=123456789
                 state.activeSessionId = null;
             },
             
-            // ==================== DAGDAG: New Heartbeat System ====================
             startHeartbeat() {
                 if (state.heartbeatInterval) {
                     clearInterval(state.heartbeatInterval);
                 }
                 
-                // Generate user ID if not exists
                 const userId = utils.generateUserId();
                 
-                // Send initial heartbeat
                 api.sendActivity(userId);
                 
-                // Start heartbeat interval
                 state.heartbeatInterval = setInterval(() => {
                     api.sendActivity(userId).then(stats => {
                         if (stats) {
@@ -2750,16 +2700,14 @@ https://m.facebook.com/story.php?story_fbid=123456789
                                 lastUpdated: Date.now()
                             };
                             
-                            // Update UI if user stats section is active
                             if (elements.sections.userStats.classList.contains('active')) {
                                 ui.updateDetailedUserStats();
                             }
                         }
                     });
-                }, 30000); // Send heartbeat every 30 seconds
+                }, 30000); 
             },
             
-            // ==================== DAGDAG: New User Stats Updates ====================
             startUserStatsUpdates() {
                 if (state.userStatsInterval) {
                     clearInterval(state.userStatsInterval);
@@ -2786,11 +2734,7 @@ https://m.facebook.com/story.php?story_fbid=123456789
             }
         };
 
-        // ====================
-        // EVENT HANDLERS
-        // ====================
         const handlers = {
-            // Menu Toggle
             initMenu() {
                 elements.menuBtn.addEventListener('click', () => {
                     elements.sidebar.classList.toggle('active');
@@ -2810,7 +2754,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
                     elements.menuBtn.classList.remove('active');
                 });
                 
-                // Menu item clicks
                 elements.menuItems.forEach(item => {
                     item.addEventListener('click', () => {
                         const section = item.dataset.section;
@@ -2818,12 +2761,11 @@ https://m.facebook.com/story.php?story_fbid=123456789
                     });
                 });
                 
-                // Quick actions
                 elements.quickProgress.addEventListener('click', () => ui.showSection('progress'));
                 elements.quickHistory.addEventListener('click', () => ui.showSection('history'));
                 elements.quickGuide.addEventListener('click', () => ui.showSection('guide'));
                 elements.quickUsers.addEventListener('click', () => ui.showSection('users'));
-                // DAGDAG: New quick actions
+                
                 elements.quickUserStats.addEventListener('click', () => ui.showSection('userStats'));
                 elements.quickRealTime.addEventListener('click', () => {
                     ui.showSection('userStats');
@@ -2831,7 +2773,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
                 });
             },
             
-            // Form Submission
             initForm() {
                 elements.shareForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
@@ -2867,7 +2808,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
                         elements.submitBtn.innerHTML = '<div class="loading"></div><span>Starting...</span>';
                         elements.submitBtn.disabled = true;
                         
-                        // Submit to API
                         const result = await api.submitShare({
                             cookie,
                             url,
@@ -2882,16 +2822,12 @@ https://m.facebook.com/story.php?story_fbid=123456789
                                 3000
                             );
                             
-                            // Set session ID in progress monitor
                             elements.sessionIdInput.value = result.sessionId;
                             
-                            // Switch to progress section
                             ui.showSection('progress');
                             
-                            // Start monitoring
                             ui.startProgressMonitor(result.sessionId);
                             
-                            // Reset form
                             elements.shareForm.reset();
                         } else {
                             throw new Error(result.error || 'Failed to start sharing');
@@ -2899,7 +2835,7 @@ https://m.facebook.com/story.php?story_fbid=123456789
                     } catch (error) {
                         Toast.error('Error', error.message || 'Failed to start sharing process');
                     } finally {
-                        // Reset button
+        
                         elements.submitBtn.innerHTML = '<i class="fas fa-play"></i><span>Start Sharing Process</span>';
                         elements.submitBtn.disabled = false;
                     }
@@ -2963,14 +2899,11 @@ https://m.facebook.com/story.php?story_fbid=123456789
                             if (result.success) {
                                 Toast.success('Stopped', `Session ${state.activeSessionId} stopped successfully`, 3000);
                                 
-                                // Stop monitoring
                                 ui.stopProgressMonitor();
                                 
-                                // Update progress display
                                 state.currentProgress.status = 'stopped';
                                 ui.updateProgressDisplay();
                                 
-                                // Update history
                                 ui.loadHistory();
                             }
                         } catch (error) {
@@ -3013,10 +2946,8 @@ https://m.facebook.com/story.php?story_fbid=123456789
                     }
                 });
             },
-            
-            // ==================== DAGDAG: New User Stats Handlers ====================
+          
             initUserStats() {
-                // View detailed user list
                 elements.viewDetailedBtn.addEventListener('click', async () => {
                     elements.viewDetailedBtn.innerHTML = '<div class="loading"></div><span>Loading...</span>';
                     elements.viewDetailedBtn.disabled = true;
@@ -3027,17 +2958,15 @@ https://m.facebook.com/story.php?story_fbid=123456789
                     elements.viewDetailedBtn.disabled = false;
                 });
                 
-                // Start live stats updates
                 elements.startLiveStatsBtn.addEventListener('click', () => {
                     ui.startUserStatsUpdates();
                 });
                 
-                // Stop live stats updates
+                
                 elements.stopLiveStatsBtn.addEventListener('click', () => {
                     ui.stopUserStatsUpdates();
                 });
-                
-                // Update interval when changed
+      
                 elements.refreshInterval.addEventListener('change', () => {
                     if (state.userStatsInterval) {
                         ui.stopUserStatsUpdates();
@@ -3046,31 +2975,26 @@ https://m.facebook.com/story.php?story_fbid=123456789
                 });
             },
             
-            // Initialize all
             initAll() {
                 this.initMenu();
                 this.initForm();
                 this.initProgress();
                 this.initHistory();
-                this.initUserStats(); // DAGDAG: New
-                
-                // Get or generate user ID
+                this.initUserStats(); 
+
                 state.userId = utils.getStoredUserId() || utils.generateUserId();
-                
-                // Start polling for updates
+      
                 state.pollingInterval = setInterval(() => {
                     ui.updateUserCount();
-                }, 10000); // Update every 10 seconds
+                }, 10000); 
                 
-                // DAGDAG: Start heartbeat system
                 ui.startHeartbeat();
                 
                 // Initial load
                 ui.loadHistory();
                 ui.updateUserCount();
                 ui.updateUserStats();
-                
-                // Show welcome message
+   
                 setTimeout(() => {
                     Toast.info(
                         'Welcome to FB Share Pro!',
@@ -3081,21 +3005,16 @@ https://m.facebook.com/story.php?story_fbid=123456789
             }
         };
 
-        // ====================
-        // INITIALIZATION
-        // ====================
+        
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize all handlers
             handlers.initAll();
-            
-            // Smooth page load
+   
             document.body.style.opacity = '0';
             setTimeout(() => {
                 document.body.style.transition = 'opacity 0.5s';
                 document.body.style.opacity = '1';
             }, 100);
-            
-            // Handle beforeunload
+      
             window.addEventListener('beforeunload', () => {
                 if (state.sessionMonitorInterval) {
                     clearInterval(state.sessionMonitorInterval);
@@ -3112,7 +3031,6 @@ https://m.facebook.com/story.php?story_fbid=123456789
             });
         });
 
-        // Expose showSection for global use
         window.showSection = ui.showSection;
     </script>
 </body>
