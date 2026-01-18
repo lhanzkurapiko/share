@@ -1,4 +1,4 @@
-# FB Share Pro 🚀
+# FB Share 🚀
 
 **Professional Facebook Sharing Tool with Real User Tracking**
 
@@ -92,8 +92,8 @@ Open your browser and navigate to: http://localhost:5000
 ## 🏗️ Project Structure
 
 ```
-fb-share-pro/
-├── server.js              # Main backend server
+your project/
+├── index.js              # Main backend server
 ├── public/               # Frontend files
 │   └── index.html        # Main application
 ├── package.json          # Dependencies
