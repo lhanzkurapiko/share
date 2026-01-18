@@ -13,7 +13,51 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const total = new Map();
 let currentSessionId = 1;
-let activeUsers = 1;
+const connectedUsers = new Map(); 
+
+app.use((req, res, next) => {
+    const userIp = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const userId = `${userIp}-${userAgent}`.substring(0, 50);
+    
+    connectedUsers.set(userId, {
+        ip: userIp,
+        userAgent: userAgent,
+        lastActivity: Date.now(),
+        requestCount: (connectedUsers.get(userId)?.requestCount || 0) + 1
+    });
+    
+    next();
+});
+
+setInterval(() => {
+    const now = Date.now();
+    let removed = 0;
+    
+    for (const [userId, user] of connectedUsers.entries()) {
+        if (now - user.lastActivity > 120000) {
+            connectedUsers.delete(userId);
+            removed++;
+        }
+    }
+    
+    if (removed > 0) {
+        console.log(`🧹 Removed ${removed} inactive users. Active: ${getRealUserCount()}`);
+    }
+}, 120000);
+
+function getRealUserCount() {
+    const now = Date.now();
+    let activeCount = 0;
+    
+    for (const [userId, user] of connectedUsers.entries()) {
+        if (now - user.lastActivity <= 120000) {
+            activeCount++;
+        }
+    }
+    
+    return Math.max(1, activeCount); 
+}
 
 app.get('/total', (req, res) => {
   try {
@@ -90,8 +134,6 @@ app.post('/stop/:id', (req, res) => {
     session.status = 'stopped';
     session.endTime = new Date().toISOString();
     total.set(sessionId, session);
-
-    activeUsers = Math.max(1, activeUsers - 1);
     
     res.json({ 
       success: true,
@@ -104,18 +146,20 @@ app.post('/stop/:id', (req, res) => {
   }
 });
 
+// ==================== UPDATED /users ENDPOINT ====================
 app.get('/users', (req, res) => {
   try {
+    const realActiveUsers = getRealUserCount();
     const activeSessions = Array.from(total.values())
       .filter(s => s.status === 'running');
-
-    const simulatedUsers = Math.floor(Math.random() * 10) + 1;
-    activeUsers = Math.max(activeSessions.length, simulatedUsers);
     
     res.json({ 
       success: true,
-      count: activeUsers,
-      activeSessions: activeSessions.length
+      count: realActiveUsers, // REAL user count
+      activeSessions: activeSessions.length,
+      realUsers: realActiveUsers,
+      totalConnections: connectedUsers.size,
+      updatedAt: new Date().toISOString()
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -126,7 +170,7 @@ app.delete('/clear', (req, res) => {
   try {
     total.clear();
     currentSessionId = 1;
-    activeUsers = 1;
+    // DON'T clear connectedUsers - keep real user tracking
     
     res.json({ 
       success: true,
@@ -135,6 +179,23 @@ app.delete('/clear', (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
+});
+
+// ==================== ACTIVITY ENDPOINT ====================
+app.post('/api/activity', (req, res) => {
+  // This endpoint allows front-end to send heartbeat
+  const { userId } = req.body;
+  
+  if (userId && connectedUsers.has(userId)) {
+    const user = connectedUsers.get(userId);
+    user.lastActivity = Date.now();
+    connectedUsers.set(userId, user);
+  }
+  
+  res.json({ 
+    success: true, 
+    activeUsers: getRealUserCount() 
+  });
 });
 
 app.post('/api/submit', async (req, res) => {
@@ -158,7 +219,7 @@ app.post('/api/submit', async (req, res) => {
 
     const sessionId = currentSessionId++;
 
-    activeUsers++;
+    // Don't increment activeUsers here - use real tracking instead
 
     share(cookies, url, amount, interval, sessionId)
       .then(() => {
@@ -255,8 +316,6 @@ async function share(cookies, url, amount, interval, sessionId) {
             currentSession.status = 'completed';
             currentSession.endTime = new Date().toISOString();
             total.set(sessionId, currentSession);
-            
-            activeUsers = Math.max(1, activeUsers - 1);
           }
         } else {
           console.warn(`⚠️ Session ${sessionId}: Non-200 response: ${response.status}`);
@@ -271,8 +330,6 @@ async function share(cookies, url, amount, interval, sessionId) {
           currentSession.error = error.message;
           currentSession.endTime = new Date().toISOString();
           total.set(sessionId, currentSession);
-
-          activeUsers = Math.max(1, activeUsers - 1);
         }
       }
     }
@@ -293,9 +350,6 @@ async function share(cookies, url, amount, interval, sessionId) {
         currentSession.status = 'timeout';
         currentSession.endTime = new Date().toISOString();
         total.set(sessionId, currentSession);
-        
-      
-        activeUsers = Math.max(1, activeUsers - 1);
       }
       clearTimeout(safetyTimeout);
     }, amount * interval * 1000 + 30000); 
@@ -310,8 +364,6 @@ async function share(cookies, url, amount, interval, sessionId) {
       currentSession.endTime = new Date().toISOString();
       total.set(sessionId, currentSession);
     }
-
-    activeUsers = Math.max(1, activeUsers - 1);
   }
 }
 
@@ -429,7 +481,7 @@ app.get('/health', (req, res) => {
     status: 'running',
     timestamp: new Date().toISOString(),
     sessions: total.size,
-    activeUsers: activeUsers,
+    activeUsers: getRealUserCount(), // REAL count
     memory: process.memoryUsage()
   });
 });
