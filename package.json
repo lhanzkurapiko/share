@@ -1,18 +1,33 @@
 {
-  "name": "shareboost-server",
+  "name": "fb-share-pro",
   "version": "1.0.0",
-  "description": "ShareBoost Backend Server - Unlimited Facebook Share Automation",
+  "description": "Professional Facebook Sharing Tool with Real-time Monitoring",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "echo \"No tests specified\" && exit 0"
   },
-  "keywords": ["facebook", "share", "automation", "unlimited"],
-  "author": "Natoy",
+  "keywords": [
+    "facebook",
+    "share",
+    "automation",
+    "tool",
+    "real-time"
+  ],
+  "author": "FB Share Pro",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "axios": "^1.6.0",
-    "ws": "^8.14.2"
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
   }
 }
