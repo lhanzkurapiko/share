@@ -52,7 +52,7 @@ app.use((req, res, next) => {
         userAgent: userAgent,
         lastActivity: Date.now(),
         requestCount: (connectedUsers.get(userId)?.requestCount || 0) + 1,
-        firstSeen: connectedUsers.get(userId)?.firstSeen || Date.now() // DAGDAG: Track first seen
+        firstSeen: connectedUsers.get(userId)?.firstSeen || Date.now() 
     });
     
     next();
