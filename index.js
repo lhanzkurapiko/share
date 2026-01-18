@@ -15,20 +15,64 @@ const total = new Map();
 let currentSessionId = 1;
 const connectedUsers = new Map(); 
 
+const rateLimit = new Map();
+const MAX_REQUESTS_PER_MINUTE = 100;
+const RATE_LIMIT_WINDOW = 60000; 
+
 app.use((req, res, next) => {
-    const userIp = req.ip || req.connection.remoteAddress;
+    let userIp = req.ip || req.connection.remoteAddress;
+    userIp = userIp.replace(/^::ffff:/, '').split(':')[0]; 
+    
     const userAgent = req.headers['user-agent'] || 'unknown';
-    const userId = `${userIp}-${userAgent}`.substring(0, 50);
+    const userId = `${userIp}-${userAgent}`.substring(0, 100); 
+
+    const now = Date.now();
+    
+    if (!rateLimit.has(userIp)) {
+        rateLimit.set(userIp, { count: 1, startTime: now });
+    } else {
+        const userLimits = rateLimit.get(userIp);
+        
+        if (now - userLimits.startTime > RATE_LIMIT_WINDOW) {
+            userLimits.count = 1;
+            userLimits.startTime = now;
+        } else if (userLimits.count >= MAX_REQUESTS_PER_MINUTE) {
+            return res.status(429).json({
+                success: false,
+                error: 'Too many requests. Please try again later.'
+            });
+        } else {
+            userLimits.count++;
+        }
+        rateLimit.set(userIp, userLimits);
+    }
     
     connectedUsers.set(userId, {
         ip: userIp,
         userAgent: userAgent,
         lastActivity: Date.now(),
-        requestCount: (connectedUsers.get(userId)?.requestCount || 0) + 1
+        requestCount: (connectedUsers.get(userId)?.requestCount || 0) + 1,
+        firstSeen: connectedUsers.get(userId)?.firstSeen || Date.now() // DAGDAG: Track first seen
     });
     
     next();
 });
+
+setInterval(() => {
+    const now = Date.now();
+    let removedRateLimits = 0;
+    
+    for (const [ip, data] of rateLimit.entries()) {
+        if (now - data.startTime > 120000) { 
+            rateLimit.delete(ip);
+            removedRateLimits++;
+        }
+    }
+    
+    if (removedRateLimits > 0) {
+        console.log(`🧹 Cleared ${removedRateLimits} expired rate limits`);
+    }
+}, 60000);
 
 setInterval(() => {
     const now = Date.now();
@@ -45,6 +89,35 @@ setInterval(() => {
         console.log(`🧹 Removed ${removed} inactive users. Active: ${getRealUserCount()}`);
     }
 }, 120000);
+
+function getDetailedUserStats() {
+    const now = Date.now();
+    let activeCount = 0;
+    let veryActiveCount = 0;
+    const uniqueIPs = new Set();
+    let totalRequests = 0;
+    
+    for (const [userId, user] of connectedUsers.entries()) {
+        if (now - user.lastActivity <= 120000) {
+            activeCount++;
+            uniqueIPs.add(user.ip);
+            totalRequests += user.requestCount;
+            
+            if (now - user.lastActivity <= 30000) {
+                veryActiveCount++;
+            }
+        }
+    }
+    
+    return {
+        totalActive: activeCount,
+        veryActive: veryActiveCount,
+        uniqueIPs: uniqueIPs.size,
+        totalTracked: connectedUsers.size,
+        totalRequests: totalRequests,
+        lastUpdated: now
+    };
+}
 
 function getRealUserCount() {
     const now = Date.now();
@@ -146,20 +219,70 @@ app.post('/stop/:id', (req, res) => {
   }
 });
 
-// ==================== UPDATED /users ENDPOINT ====================
 app.get('/users', (req, res) => {
   try {
-    const realActiveUsers = getRealUserCount();
+    const stats = getDetailedUserStats(); 
     const activeSessions = Array.from(total.values())
       .filter(s => s.status === 'running');
     
     res.json({ 
       success: true,
-      count: realActiveUsers, // REAL user count
+      count: stats.totalActive, 
       activeSessions: activeSessions.length,
-      realUsers: realActiveUsers,
-      totalConnections: connectedUsers.size,
-      updatedAt: new Date().toISOString()
+      realUsers: stats.totalActive,
+      veryActiveUsers: stats.veryActive, 
+      uniqueIPs: stats.uniqueIPs, 
+      totalConnections: stats.totalTracked,
+      totalRequests: stats.totalRequests, 
+      updatedAt: new Date().toISOString(),
+      stats: { 
+        activeUsers: stats.totalActive,
+        veryActive: stats.veryActive,
+        uniqueIPs: stats.uniqueIPs,
+        totalTracked: stats.totalTracked
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/users/detailed', (req, res) => {
+  try {
+    const now = Date.now();
+    const activeUsers = [];
+    const inactiveUsers = [];
+    
+    for (const [userId, user] of connectedUsers.entries()) {
+        const userData = {
+            id: userId.substring(0, 20) + '...',
+            ip: user.ip,
+            userAgent: user.userAgent.substring(0, 50),
+            lastActivity: new Date(user.lastActivity).toLocaleTimeString(),
+            firstSeen: new Date(user.firstSeen).toLocaleTimeString(),
+            requestCount: user.requestCount,
+            isActive: now - user.lastActivity <= 120000,
+            lastSeenSeconds: Math.floor((now - user.lastActivity) / 1000)
+        };
+        
+        if (userData.isActive) {
+            activeUsers.push(userData);
+        } else {
+            inactiveUsers.push(userData);
+        }
+    }
+    
+    activeUsers.sort((a, b) => b.lastSeenSeconds - a.lastSeenSeconds);
+    inactiveUsers.sort((a, b) => b.lastSeenSeconds - a.lastSeenSeconds);
+    
+    res.json({
+        success: true,
+        activeUsers: activeUsers,
+        inactiveUsers: inactiveUsers,
+        totalActive: activeUsers.length,
+        totalInactive: inactiveUsers.length,
+        totalTracked: connectedUsers.size,
+        updatedAt: new Date().toISOString()
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -170,7 +293,6 @@ app.delete('/clear', (req, res) => {
   try {
     total.clear();
     currentSessionId = 1;
-    // DON'T clear connectedUsers - keep real user tracking
     
     res.json({ 
       success: true,
@@ -181,9 +303,7 @@ app.delete('/clear', (req, res) => {
   }
 });
 
-// ==================== ACTIVITY ENDPOINT ====================
 app.post('/api/activity', (req, res) => {
-  // This endpoint allows front-end to send heartbeat
   const { userId } = req.body;
   
   if (userId && connectedUsers.has(userId)) {
@@ -194,7 +314,8 @@ app.post('/api/activity', (req, res) => {
   
   res.json({ 
     success: true, 
-    activeUsers: getRealUserCount() 
+    activeUsers: getRealUserCount(),
+    stats: getDetailedUserStats() 
   });
 });
 
@@ -219,7 +340,6 @@ app.post('/api/submit', async (req, res) => {
 
     const sessionId = currentSessionId++;
 
-    // Don't increment activeUsers here - use real tracking instead
 
     share(cookies, url, amount, interval, sessionId)
       .then(() => {
@@ -264,7 +384,6 @@ async function share(cookies, url, amount, interval, sessionId) {
       throw new Error("Invalid cookies: Cannot get access token");
     }
     
-    // Initialize session
     total.set(sessionId, {
       url,
       id,
@@ -476,19 +595,26 @@ async function convertCookie(cookie) {
 }
 
 app.get('/health', (req, res) => {
+  const stats = getDetailedUserStats(); 
+  
   res.json({
     success: true,
     status: 'running',
     timestamp: new Date().toISOString(),
     sessions: total.size,
-    activeUsers: getRealUserCount(), // REAL count
-    memory: process.memoryUsage()
+    activeUsers: stats.totalActive, 
+    veryActiveUsers: stats.veryActive, 
+    uniqueIPs: stats.uniqueIPs, 
+    totalRequests: stats.totalRequests, 
+    memory: process.memoryUsage(),
+    userStats: stats 
   });
 });
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
 
 app.use((err, req, res, next) => {
   console.error('🚨 Server Error:', err.stack);
@@ -505,6 +631,9 @@ app.listen(PORT, () => {
   console.log(`🌐 Access: http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`👥 Users endpoint: http://localhost:${PORT}/users`);
+  console.log(`👤 Detailed users: http://localhost:${PORT}/users/detailed`); 
   console.log(`📋 History endpoint: http://localhost:${PORT}/total`);
   console.log('\n⚡ Ready to share!');
+  console.log(`📈 Real active users tracking: ENABLED`);
+  console.log(`🛡️ Rate limiting: ENABLED (${MAX_REQUESTS_PER_MINUTE} requests/minute)`);
 });
