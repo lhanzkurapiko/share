@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jzov AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;font-family:Poppins}
+body{
+  margin:0;height:100vh;
+  background:radial-gradient(circle at top,#0f172a,#020617);
+  display:flex;justify-content:center;align-items:center;color:#fff
+}
+.chat-container{
+  width:100%;max-width:420px;height:92vh;
+  background:rgba(15,23,42,.8);
+  backdrop-filter:blur(18px);
+  border-radius:20px;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 0 30px rgba(0,0,0,.7)
+}
+.header{
+  padding:12px;background:linear-gradient(135deg,#38bdf8,#6366f1);
+  color:#020617;font-weight:600
+}
+.ai-box{display:flex;align-items:center;gap:10px}
+.ai-img{width:42px;height:42px;border-radius:50%}
+.title{font-size:20px}
+.sub{font-size:12px;opacity:.8}
+.messages{flex:1;padding:15px;overflow-y:auto}
+.msg{max-width:75%;padding:10px 14px;border-radius:14px;margin-bottom:10px}
+.user{margin-left:auto;background:linear-gradient(135deg,#22c55e,#16a34a);color:#020617}
+.bot{margin-right:auto;background:rgba(255,255,255,.1)}
+.msg img{max-width:160px;border-radius:10px;display:block;margin-bottom:6px}
+.input-area{display:flex;padding:10px;background:rgba(2,6,23,.8);gap:6px}
+input{flex:1;padding:10px;border:none;border-radius:10px;background:#020617;color:#fff}
+button{border:none;border-radius:10px;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#020617;font-weight:600;padding:0 14px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="header">
+    <div class="ai-box">
+      <img src="https://i.ibb.co/7r7mLk9/ai-avatar.png" class="ai-img">
+      <div>
+        <div class="title">Jzov AI</div>
+        <div class="sub">Smart Assistant</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="messages" id="chat"></div>
+
+  <div class="input-area">
+    <input id="text" type="text" placeholder="Ask Jzov AI...">
+    <input type="file" id="image" accept="image/*" hidden>
+    <button onclick="document.getElementById('image').click()">📷</button>
+    <button onclick="sendMsg()">Send</button>
+  </div>
+</div>
+
+<script>
+const chat=document.getElementById("chat");
+const input=document.getElementById("text");
+const imageInput=document.getElementById("image");
+
+function addMsg(text,type,img=null){
+  const div=document.createElement("div");
+  div.className="msg "+type;
+  if(img){
+    const i=document.createElement("img");
+    i.src=img;div.appendChild(i);
+  }
+  if(text){
+    const s=document.createElement("span");
+    s.textContent=text;div.appendChild(s);
+  }
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+async function sendMsg(){
+  const msg=input.value.trim();
+  const file=imageInput.files[0];
+  if(!msg && !file) return;
+
+  let imgURL=null;
+
+  if(file){
+    const f=new FormData();
+    f.append("file",file);
+
+    const up=await fetch("https://api.imgbb.com/1/upload?key=YOUR_IMGBB_API_KEY",{
+      method:"POST",body:f
+    });
+    const d=await up.json();
+    imgURL=d.data.url;
+  }
+
+  addMsg(msg,"user",imgURL);
+  input.value="";imageInput.value="";
+
+  const res=await fetch("/ai",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({message:msg,image:imgURL})
+  });
+
+  const r=await res.json();
+  addMsg(r.reply,"bot");
+}
+
+input.addEventListener("keydown",e=>{if(e.key==="Enter")sendMsg()});
+</script>
+
+</body>
+</html>
